@@ -1,0 +1,903 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Remnawave tools, bot and wiki</title>
+  <meta name="description" content="Personal page of eGames: tools around the Remnawave ecosystem — the reverse proxy installer, the Remnafamily Guard moderation bot and documentation at wiki.egam.es." />
+  <meta property="og:title" content="Remnawave tools, bot and wiki" />
+  <meta property="og:description" content="Tools around the Remnawave ecosystem: a bash installer, a Telegram moderation bot and documentation in two languages." />
+  <meta property="og:type" content="website" />
+  <meta property="og:url" content="https://egam.es/" />
+  <link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns%3D%27http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%27%20viewBox%3D%270%200%2064%2064%27%3E%0A%3Crect%20width%3D%2764%27%20height%3D%2764%27%20rx%3D%2714%27%20fill%3D%27%2308110d%27%2F%3E%0A%3Cpath%20d%3D%27M18%2020%20L30%2032%20L18%2044%27%20fill%3D%27none%27%20stroke%3D%27%2300f0b0%27%20stroke-width%3D%276%27%20stroke-linecap%3D%27round%27%20stroke-linejoin%3D%27round%27%2F%3E%0A%3Crect%20x%3D%2736%27%20y%3D%2740%27%20width%3D%2714%27%20height%3D%276%27%20rx%3D%272%27%20fill%3D%27%234da3ff%27%2F%3E%0A%3C%2Fsvg%3E" />
+  <link rel="apple-touch-icon" href="https://avatars.githubusercontent.com/u/33666852?v=4" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet" />
+  <script async src="https://ps.log.rw/js/pa-ysz8ccUIIJHLaNOSqsEPq.js"></script>
+  <script>
+    window.plausible=window.plausible||function(){(plausible.q=plausible.q||[]).push(arguments)},plausible.init=plausible.init||function(i){plausible.o=i||{}};
+    plausible.init()
+  </script>
+  <style>
+    :root {
+      --bg: #08110d;
+      --bg-glow1: rgba(0, 240, 176, 0.055);
+      --bg-glow2: rgba(0, 192, 128, 0.04);
+      --bg-alt: rgba(11, 21, 16, 0.45);
+      --panel: #0f2119;
+      --panel2: #10241b;
+      --panel-head: rgba(11, 21, 16, 0.7);
+      --line: #172b21;
+      --card: #24402f;
+      --card-hi: rgba(0, 229, 160, 0.45);
+      --text: #c3d8cb;
+      --bright: #eef7f0;
+      --muted: #7f9d8e;
+      --muted2: #a9c0b0;
+      --mint: #00f0b0;
+      --mint2: #62ffd2;
+      --green: #00e5a0;
+      --blue: #4da3ff;
+      --violet: #bc8cff;
+      --pink: #ff8ae2;
+      --cyan: #39c5cf;
+      --amber: #ffd84d;
+      --red: #ff5d5d;
+      --nav-bg: rgba(8, 17, 13, 0.82);
+      --shadow-card: 0 18px 42px -18px rgba(0, 240, 176, 0.38);
+      --shadow-deep: 0 14px 40px rgba(0, 0, 0, 0.35);
+      --mono: 'JetBrains Mono', ui-monospace, Consolas, monospace;
+      --sans: 'Inter', system-ui, -apple-system, 'Segoe UI', sans-serif;
+      color-scheme: dark;
+    }
+
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      font-family: var(--sans);
+      background:
+        radial-gradient(900px 420px at 75% 120px, var(--bg-glow1), transparent 62%),
+        radial-gradient(800px 500px at 15% 40%, rgba(77, 163, 255, 0.05), transparent 60%),
+        var(--bg);
+      color: var(--text);
+      -webkit-font-smoothing: antialiased;
+      overflow-x: clip;
+    }
+    ::selection { background: rgba(0, 240, 176, 0.28); color: var(--bright); }
+    a { color: var(--mint); }
+    code { font-family: var(--mono); }
+    :focus-visible { outline: 2px solid var(--mint); outline-offset: 2px; border-radius: 4px; }
+
+    .nav {
+      position: sticky; top: 0; z-index: 50;
+      display: flex; align-items: center; gap: 1rem;
+      height: 60px; padding: 0 clamp(1rem, 4vw, 2rem);
+      background: var(--nav-bg);
+      border-bottom: 1px solid var(--line);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+    }
+    .brand {
+      display: inline-flex; align-items: center; gap: 0.6rem;
+      font-family: var(--mono); font-weight: 700; font-size: 1rem;
+      color: var(--bright); text-decoration: none; white-space: nowrap;
+      padding: 0.25rem 0.35rem; margin: -0.25rem -0.35rem; border-radius: 10px;
+      transition: background 0.2s ease;
+    }
+    .brand:hover { background: color-mix(in srgb, var(--blue) 8%, transparent); }
+    .nav-ava {
+      width: 28px; height: 28px; flex: none; display: block;
+      border-radius: 50%; object-fit: cover;
+      border: 1.5px solid color-mix(in srgb, var(--mint) 55%, transparent);
+    }
+    .brand-term { display: inline-flex; align-items: center; font-size: 0.92rem; font-weight: 500; letter-spacing: -0.01em; }
+    .brand-term b { color: var(--green); font-weight: 700; }
+    .brand-term i { color: var(--muted); font-style: normal; padding: 0 1px; }
+    .brand-term > span { color: var(--mint); }
+    .brand-term em { color: var(--muted); font-style: normal; margin-left: 2px; }
+    .brand-caret {
+      width: 7px; height: 15px; border-radius: 1.5px;
+      background: var(--green); margin-left: 7px;
+      animation: term-blink 1.1s steps(1) infinite;
+    }
+    .nav-links { margin-left: auto; display: flex; align-items: center; gap: 0.35rem; }
+    .nav-links a {
+      font-size: 0.88rem; font-weight: 500; color: var(--muted2);
+      text-decoration: none; padding: 0.45rem 0.85rem; border-radius: 999px;
+      transition: color 0.2s ease, background 0.2s ease;
+      white-space: nowrap;
+    }
+    .nav-links a:hover { color: var(--bright); background: color-mix(in srgb, var(--blue) 10%, transparent); }
+    .lang {
+      display: inline-flex; margin-left: 0.35rem;
+      border: 1px solid var(--card); border-radius: 999px; overflow: hidden;
+    }
+    .lang button {
+      appearance: none; cursor: pointer; border: 0;
+      background: transparent; color: var(--muted);
+      font-family: var(--mono); font-size: 0.72rem; font-weight: 700;
+      letter-spacing: 0.06em; padding: 0.36rem 0.62rem;
+      transition: color 0.2s ease, background 0.2s ease;
+    }
+    .lang button + button { border-left: 1px solid var(--card); }
+    .lang button:hover { color: var(--bright); }
+    .lang button.on { color: var(--blue); background: color-mix(in srgb, var(--blue) 13%, transparent); }
+    @media (max-width: 640px) { .nav-links a:not(.keep) { display: none; } }
+    @media (max-width: 520px) {
+      .brand-term { display: none; }
+      .lang button { padding: 0.32rem 0.5rem; }
+    }
+
+    .first {
+      display: flex; flex-direction: column;
+      min-height: calc(100dvh - 60px);
+    }
+    .in { width: 100%; max-width: 1180px; margin-inline: auto; padding-inline: clamp(1.25rem, 4vw, 2rem); }
+    .hero {
+      flex: 1 1 auto;
+      display: grid; grid-template-columns: minmax(0, 1.15fr) minmax(0, 0.85fr);
+      gap: clamp(1.5rem, 3.5vw, 3.25rem);
+      align-items: center;
+      padding-block: clamp(2.75rem, 7vh, 4.5rem) clamp(2rem, 6vh, 3.5rem);
+    }
+    .who { display: flex; align-items: center; gap: 0.8rem; margin-bottom: 1.4rem; flex-wrap: wrap; }
+    .who-ava {
+      width: 44px; height: 44px; flex: none; display: block; object-fit: cover;
+      border-radius: 10px;
+      border: 1.5px solid color-mix(in srgb, var(--mint) 55%, transparent);
+      box-shadow: 0 0 14px color-mix(in srgb, var(--mint) 20%, transparent);
+    }
+    .who-id {
+      display: inline-flex; align-items: baseline; gap: 0.55rem;
+      font-family: var(--mono); flex-wrap: wrap; row-gap: 0.15rem;
+    }
+    .who-name { font-size: 1rem; font-weight: 700; color: var(--bright); letter-spacing: -0.01em; }
+    .who-dot {
+      width: 6px; height: 6px; border-radius: 50%; flex: none;
+      background: var(--green); align-self: center;
+      box-shadow: 0 0 8px rgba(39, 201, 63, 0.7);
+      animation: term-pulse 2s ease-in-out infinite;
+    }
+    .who-role { font-size: 0.78rem; color: var(--muted); }
+    h1 {
+      font-family: var(--mono);
+      font-size: clamp(2.1rem, 4.8vw, 3.65rem);
+      font-weight: 700; line-height: 1.08; letter-spacing: -0.035em;
+      color: var(--bright);
+      margin: 0 0 1.1rem;
+    }
+    .h1-l2 { white-space: nowrap; display: inline-block; max-width: 100%; }
+    .grad {
+      background: linear-gradient(96deg, #00f0b0 0%, #4da3ff 55%, #bc8cff 100%);
+      -webkit-background-clip: text; background-clip: text; color: transparent;
+      padding-inline-end: 0.06em;
+      filter: drop-shadow(0 0 16px rgba(77, 163, 255, 0.22));
+    }
+    .lead {
+      font-size: clamp(0.96rem, 1.4vw, 1.08rem);
+      line-height: 1.65; color: var(--muted2);
+      max-width: 34em; margin: 0 0 1.5rem;
+    }
+
+    .stats { display: flex; flex-wrap: wrap; gap: 0.6rem; margin: 0 0 1.6rem; }
+    .stat {
+      --st: var(--mint);
+      display: inline-flex; align-items: center; gap: 0.55rem;
+      padding: 0.56rem 0.85rem; border-radius: 999px;
+      background: color-mix(in srgb, var(--st) 6%, var(--panel));
+      border: 1px solid color-mix(in srgb, var(--st) 30%, transparent);
+      transition: transform 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
+    }
+    .stat.st-violet { --st: var(--violet); }
+    .stat.st-blue { --st: var(--blue); }
+    .stat.st-amber { --st: var(--amber); }
+    .stat:hover {
+      transform: translateY(-2px);
+      border-color: color-mix(in srgb, var(--st) 55%, transparent);
+      box-shadow:
+        0 10px 24px -12px color-mix(in srgb, var(--st) 50%, transparent),
+        0 0 16px color-mix(in srgb, var(--st) 18%, transparent);
+    }
+    .stat .st-ico { display: inline-flex; color: var(--st); flex: none; filter: drop-shadow(0 0 6px color-mix(in srgb, var(--st) 45%, transparent)); }
+    .stat .st-ico svg { width: 15px; height: 15px; display: block; }
+    .stat b { font-family: var(--mono); font-size: 1.02rem; font-weight: 700; line-height: 1; color: var(--bright); }
+    .stat .st-lb { font-size: 0.78rem; color: var(--muted); line-height: 1.2; }
+    @media (max-width: 640px) { .stat .st-lb { font-size: 0.72rem; } .stat { padding: 0.5rem 0.85rem; } }
+
+    .cta { display: flex; align-items: center; flex-wrap: wrap; gap: 0.4rem 1.25rem; margin-bottom: 1.4rem; }
+    .btn {
+      display: inline-flex; align-items: center; gap: 0.5rem;
+      padding: 0.75rem 1.5rem; border-radius: 999px;
+      font-size: 0.95rem; font-weight: 600; text-decoration: none; white-space: nowrap;
+      transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1), filter 0.25s ease, border-color 0.25s ease;
+    }
+    .btn:active { transform: scale(0.97); }
+    .btn.primary {
+      position: relative; overflow: hidden;
+      background: linear-gradient(120deg, #5cffd0 0%, #00e0a6 38%, #3a9dff 100%);
+      color: #04121f; font-weight: 700; font-size: 1rem; padding: 0.9rem 2rem;
+      box-shadow:
+        0 14px 42px -10px rgba(58, 157, 255, 0.6),
+        inset 0 1px 0 rgba(255, 255, 255, 0.4),
+        inset 0 -2px 6px rgba(20, 70, 130, 0.22);
+    }
+    .btn.primary::after {
+      content: ''; position: absolute; top: 0; bottom: 0; left: -70%;
+      width: 45%; transform: skewX(-20deg);
+      background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.55), transparent);
+      transition: left 0.55s ease;
+    }
+    .btn.primary:hover { transform: translateY(-2px); filter: brightness(1.05); }
+    .btn.primary:hover::after { left: 125%; }
+    .lnk {
+      position: relative;
+      font-family: var(--mono); font-size: 0.88rem; font-weight: 500;
+      color: var(--muted2); text-decoration: none; white-space: nowrap;
+      padding: 0.35rem 0.05rem;
+      transition: color 0.2s ease;
+    }
+    .lnk .ext { margin-left: 3px; color: var(--muted); transition: color 0.2s ease, transform 0.2s ease; }
+    .lnk::after {
+      content: ''; position: absolute; left: 0; right: 0; bottom: 0; height: 1px;
+      background: linear-gradient(90deg, var(--mint), transparent 85%);
+      opacity: 0; transition: opacity 0.2s ease;
+    }
+    .lnk:hover { color: var(--bright); }
+    .lnk:hover::after { opacity: 1; }
+    .lnk:hover .ext { color: var(--mint); transform: translate(1px, -1px); }
+    .arrow { transition: transform 0.2s ease; }
+    .btn.primary:hover .arrow { transform: translateX(3px); }
+
+    .hero-note {
+      display: flex; align-items: center; gap: 0.55rem;
+      font-size: 0.8rem; color: var(--muted);
+    }
+    .hero-note svg { flex: none; color: var(--blue); }
+    .hero-note code { color: var(--mint2); font-size: 0.78rem; }
+
+    .hero-term { position: relative; min-width: 0; }
+    .halo {
+      position: absolute; inset: -22% -18%; z-index: 0;
+      pointer-events: none;
+      background:
+        radial-gradient(48% 44% at 36% 34%, rgba(0, 240, 176, 0.18), transparent 68%),
+        radial-gradient(46% 48% at 70% 68%, rgba(77, 163, 255, 0.17), transparent 68%),
+        radial-gradient(38% 38% at 64% 28%, rgba(188, 140, 255, 0.15), transparent 68%),
+        radial-gradient(36% 36% at 32% 74%, rgba(255, 138, 226, 0.12), transparent 68%);
+      filter: blur(26px);
+      -webkit-mask-image: radial-gradient(ellipse 66% 64% at 50% 50%, #000 30%, transparent 86%);
+      mask-image: radial-gradient(ellipse 66% 64% at 50% 50%, #000 30%, transparent 86%);
+      animation: halo-drift 13s ease-in-out infinite alternate;
+    }
+    @keyframes halo-drift {
+      0% { transform: translate3d(-1.5%, -1%, 0) scale(1); opacity: 0.9; }
+      100% { transform: translate3d(2%, 1.5%, 0) scale(1.07); opacity: 1; }
+    }
+    .specks { position: absolute; inset: -8%; pointer-events: none; }
+    .specks i {
+      position: absolute; width: 4px; height: 4px; border-radius: 50%;
+      background: rgba(0, 240, 176, 0.6);
+      box-shadow: 0 0 7px rgba(0, 240, 176, 0.55);
+      animation: eg-speck 7s ease-in-out infinite;
+    }
+    .specks i:nth-child(1) { left: 8%; top: 20%; }
+    .specks i:nth-child(2) { right: 12%; top: 12%; width: 3px; height: 3px; background: rgba(77, 163, 255, 0.6); box-shadow: 0 0 7px rgba(77, 163, 255, 0.55); animation-delay: 1.8s; }
+    .specks i:nth-child(3) { left: 20%; bottom: 18%; background: rgba(188, 140, 255, 0.6); box-shadow: 0 0 7px rgba(188, 140, 255, 0.55); animation-delay: 3.1s; }
+    .specks i:nth-child(4) { right: 6%; bottom: 28%; width: 3px; height: 3px; animation-delay: 4.4s; }
+    .specks i:nth-child(5) { left: 45%; top: -2%; width: 3px; height: 3px; background: rgba(77, 163, 255, 0.5); animation-delay: 5.6s; }
+    .specks i:nth-child(6) { right: 38%; bottom: 4%; animation-delay: 2.4s; }
+    @keyframes eg-speck { 50% { transform: translateY(-16px); opacity: 0.35; } }
+
+    .dep {
+      position: relative; z-index: 1;
+      display: flex; flex-direction: column; gap: 16px;
+      border: 1px solid #2a4737; border-radius: 16px;
+      background: #0a0f0c;
+      box-shadow: 0 18px 44px rgba(0, 0, 0, 0.5), inset 0 0 30px rgba(0, 0, 0, 0.35);
+      padding: 22px 22px 20px;
+      animation: art-in 0.9s 0.2s ease both;
+    }
+    @keyframes art-in { from { opacity: 0; } to { opacity: 1; } }
+    .dep-cap { font-family: var(--mono); font-size: 11.5px; color: #5e7d6f; letter-spacing: 0.04em; }
+    .dep-cap b { color: #00e5a0; font-weight: 700; }
+    .dep-btn {
+      appearance: none; cursor: pointer; border: 0;
+      display: flex; align-items: center; justify-content: center; gap: 10px;
+      height: 54px; border-radius: 13px;
+      font-family: var(--mono); font-weight: 700; font-size: 15px; letter-spacing: 0.06em;
+      color: #04121f;
+      background: linear-gradient(120deg, #5cffd0 0%, #00e0a6 38%, #3a9dff 100%);
+      box-shadow:
+        0 14px 38px -10px rgba(58, 157, 255, 0.55),
+        inset 0 1px 0 rgba(255, 255, 255, 0.4);
+      transition: transform 0.2s ease, filter 0.2s ease, box-shadow 0.2s ease;
+    }
+    .dep-btn:hover { transform: translateY(-2px); filter: brightness(1.06); }
+    .dep-btn:active { transform: scale(0.98); }
+    .dep-btn.busy { cursor: wait; filter: brightness(0.9); transform: none; }
+    .dep-btn.attn { animation: btn-pulse 2.4s ease-in-out infinite; }
+    @keyframes btn-pulse {
+      50% { box-shadow: 0 18px 46px -8px rgba(58, 157, 255, 0.75), inset 0 1px 0 rgba(255, 255, 255, 0.4); }
+    }
+    .dep-btn i { font-style: normal; transition: transform 0.2s ease; }
+    .dep-btn:hover i { transform: translateX(3px); }
+    .dep-steps { list-style: none; margin: 2px 0 0; padding: 0; display: grid; gap: 10px; }
+    .dep-step { display: flex; align-items: flex-start; gap: 11px; font-family: var(--mono); font-size: 12.5px; }
+    .dep-step .tx { display: flex; flex-direction: column; gap: 2px; padding-top: 1px; }
+    .dep-step .det { font-size: 10.5px; color: #4f6a5c; opacity: 0; transform: translateY(3px); transition: opacity 0.35s ease, transform 0.35s ease; }
+    .dep-step.ok .det { opacity: 1; transform: none; }
+    .dep-step .ic { position: relative; width: 14px; height: 14px; flex: none; border-radius: 50%; border: 1.5px solid #24402f; }
+    .dep-step span { color: #5e7d6f; transition: color 0.3s ease; }
+    .dep-step.run .ic { border-color: rgba(0, 240, 176, 0.25); border-top-color: #00f0b0; animation: dep-spin 0.7s linear infinite; }
+    .dep-step.run span { color: #e9f4ec; }
+    .dep-step.ok .ic { border-color: transparent; }
+    .dep-step.ok .ic::after {
+      content: '✓'; position: absolute; inset: 0;
+      display: flex; align-items: center; justify-content: center;
+      color: #00e5a0; font-size: 11px; font-weight: 700;
+      animation: ic-pop 0.35s cubic-bezier(0.2, 2.2, 0.4, 1) both;
+    }
+    @keyframes ic-pop { 0% { transform: scale(0.3); } 60% { transform: scale(1.3); } 100% { transform: scale(1); } }
+    .dep-step.ok span { color: #8ca08f; }
+    @keyframes dep-spin { to { transform: rotate(360deg); } }
+    .dep-barwrap { display: flex; align-items: center; gap: 12px; }
+    .dep-bar { flex: 1; height: 5px; border-radius: 3px; background: #0f2119; overflow: hidden; }
+    .dep-bar i {
+      display: block; height: 100%; width: 0;
+      background: linear-gradient(90deg, #00f0b0, #4da3ff);
+      box-shadow: 0 0 10px rgba(0, 240, 176, 0.45);
+      transition: width 0.5s ease;
+    }
+    .dep-time { font-family: var(--mono); font-size: 11px; color: #5e7d6f; min-width: 34px; text-align: right; }
+    .dep-done { font-family: var(--mono); font-size: 13px; font-weight: 700; color: #00e5a0; opacity: 0; transform: translateY(4px); transition: opacity 0.4s ease, transform 0.4s ease; min-height: 18px; }
+    .dep-done.show { opacity: 1; transform: none; }
+    .dep.flash { border-color: rgba(0, 240, 176, 0.45); box-shadow: 0 18px 44px rgba(0, 0, 0, 0.5), 0 0 34px rgba(0, 240, 176, 0.14), inset 0 0 30px rgba(0, 0, 0, 0.35); transition: border-color 0.5s ease, box-shadow 0.5s ease; }
+    .dep-btn.busy i { opacity: 0; }
+    .dep-url {
+      font-family: var(--mono); font-size: 11px; overflow-wrap: anywhere;
+      opacity: 0; transform: translateY(4px);
+      transition: opacity 0.5s ease 0.15s, transform 0.5s ease 0.15s;
+    }
+    .dep-url.show { opacity: 1; transform: none; }
+    .dep-url a { text-decoration: none; transition: text-shadow 0.2s ease; }
+    .dep-url a:hover { text-decoration: underline; text-underline-offset: 3px; text-shadow: 0 0 12px currentColor; }
+    .dep-url .u-dim { color: #5e7d6f; }
+    .dep-url .u-cyan { color: #39c5cf; }
+    .dep-url .u-mint { color: #00e5a0; }
+    .dep-url .u-violet { color: #cdaaff; }
+    .dep-steps.live .dep-step { animation: step-in 0.4s ease both; }
+    .dep-steps.live .dep-step:nth-child(2) { animation-delay: 0.07s; }
+    .dep-steps.live .dep-step:nth-child(3) { animation-delay: 0.14s; }
+    .dep-steps.live .dep-step:nth-child(4) { animation-delay: 0.21s; }
+    @keyframes step-in { from { opacity: 0; transform: translateX(-8px); } to { opacity: 1; transform: none; } }
+
+    .sec { padding-block: clamp(3.25rem, 8vh, 5.5rem); }
+    .sec.alt { background: var(--bg-alt); border-block: 1px solid var(--line); }
+    .sec h2 {
+      display: flex; align-items: center; gap: 0.6rem;
+      font-family: var(--mono);
+      font-size: clamp(1.45rem, 3vw, 2.05rem);
+      color: var(--bright); margin: 0 0 1.1rem;
+    }
+    .idx { position: relative; color: var(--bright); font-size: 0.82em; font-weight: 700; letter-spacing: 0.06em; white-space: nowrap; padding-left: 0.85em; }
+    .idx::before {
+      content: ''; position: absolute; left: 0; top: 50%;
+      width: 4px; height: 1.05em; transform: translateY(-50%);
+      border-radius: 2px;
+      background: linear-gradient(180deg, var(--mint), var(--blue));
+      box-shadow: 0 0 10px rgba(0, 240, 176, 0.4);
+    }
+    .sec.alt .idx::before { background: linear-gradient(180deg, var(--violet), var(--pink)); box-shadow: 0 0 10px rgba(188, 140, 255, 0.4); }
+    .rule { flex: 1; height: 2px; border-radius: 2px; background: linear-gradient(90deg, var(--card), transparent); }
+    .sec-sub { color: var(--muted2); line-height: 1.7; max-width: 46em; margin: 0 0 2.1rem; }
+
+    .rv { opacity: 0; transform: translateY(18px); }
+    .rv.in { opacity: 1; transform: none; transition: opacity 0.6s ease, transform 0.6s cubic-bezier(0.16, 1, 0.3, 1); }
+
+    .plist { border-top: 1px solid var(--line); }
+    .pl-row {
+      --acc: var(--mint);
+      display: grid; grid-template-columns: 2.9rem 44px minmax(0, 1fr) auto;
+      gap: 1.15rem; align-items: start;
+      padding: 1.55rem 0.5rem;
+      border-bottom: 1px solid var(--line);
+      text-decoration: none; color: inherit;
+      transition: background 0.25s ease, padding-left 0.25s ease;
+    }
+    .pl-row.a-pink { --acc: var(--pink); }
+    .pl-row.a-violet { --acc: var(--violet); }
+    .pl-row:hover {
+      background: linear-gradient(90deg, color-mix(in srgb, var(--acc) 6%, transparent), transparent 72%);
+      padding-left: 1rem;
+    }
+    .pl-idx { font-family: var(--mono); font-size: 0.8rem; color: var(--muted); padding-top: 0.4rem; }
+    .pl-row:hover .pl-idx { color: var(--acc); }
+    .pl-mark {
+      width: 44px; height: 44px; flex: none;
+      display: flex; align-items: center; justify-content: center;
+      background: #0f2119;
+      border: 1px solid rgba(0, 229, 160, 0.24);
+      border-radius: 10px;
+      box-shadow: 0 0 14px rgba(0, 229, 160, 0.12);
+    }
+    .pl-mark img { width: 24px; height: 24px; display: block; }
+    .pl-mark.ava { padding: 0; overflow: hidden; background: var(--panel-head); }
+    .pl-mark.ava img { width: 100%; height: 100%; object-fit: cover; border-radius: 9px; }
+    .pl-head { display: flex; align-items: baseline; gap: 0.75rem; flex-wrap: wrap; }
+    .pl-name {
+      font-family: var(--mono); font-weight: 700;
+      font-size: clamp(1.12rem, 2vw, 1.42rem);
+      color: var(--bright); letter-spacing: -0.015em;
+      transition: text-shadow 0.25s ease;
+    }
+    .pl-row:hover .pl-name { text-shadow: 0 0 18px color-mix(in srgb, var(--acc) 45%, transparent); }
+    .pl-role { font-family: var(--mono); font-size: 0.78rem; color: var(--acc); }
+    .pl-meta { display: block; font-family: var(--mono); font-size: 0.75rem; color: var(--muted); margin-top: 0.35rem; letter-spacing: 0.02em; }
+    .pl-main p { margin: 0.5rem 0 0; font-size: 0.88rem; color: var(--muted2); line-height: 1.62; max-width: 62ch; }
+    .pl-tags { display: block; font-family: var(--mono); font-size: 0.72rem; color: var(--muted); margin-top: 0.55rem; letter-spacing: 0.03em; }
+    .pl-go {
+      font-family: var(--mono); font-size: 1.15rem; padding-top: 0.35rem;
+      color: var(--acc); opacity: 0; transform: translate(-6px, 0);
+      transition: opacity 0.2s ease, transform 0.2s ease;
+    }
+    .pl-row:hover .pl-go { opacity: 1; transform: none; }
+    .pl-note { font-family: var(--mono); font-size: 0.72rem; color: var(--muted); padding-top: 0.5rem; white-space: nowrap; }
+    @media (hover: none) { .pl-go { opacity: 1; transform: none; } }
+    @media (max-width: 700px) {
+      .pl-row { grid-template-columns: 44px minmax(0, 1fr); gap: 0.9rem; }
+      .pl-idx { display: none; }
+      .pl-go, .pl-note { grid-column: 2; justify-self: end; }
+    }
+
+    .comm-split {
+      display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+      gap: clamp(1.5rem, 4vw, 3.5rem); align-items: start;
+    }
+    .comm-text .sec-sub { margin-bottom: 0; }
+    .comm-links { display: flex; flex-direction: column; padding-top: 0.35rem; }
+    .cmd-link {
+      display: block; text-decoration: none; color: inherit;
+      padding: 1.05rem 0.25rem;
+      border-bottom: 1px dashed color-mix(in srgb, var(--card) 85%, transparent);
+      transition: padding 0.25s ease;
+    }
+    .cmd-link:first-child { border-top: 1px dashed color-mix(in srgb, var(--card) 85%, transparent); }
+    .cmd-link:hover { padding-left: 0.7rem; }
+    .cl-label {
+      display: block; font-family: var(--mono); font-size: 0.68rem;
+      letter-spacing: 0.14em; text-transform: uppercase;
+      color: var(--violet); margin-bottom: 0.4rem;
+    }
+    .cmd-link.gh .cl-label { color: var(--blue); }
+    .cl-cmd {
+      display: flex; align-items: center; gap: 0.55rem;
+      font-family: var(--mono);
+      font-size: clamp(0.98rem, 1.7vw, 1.18rem);
+      color: var(--muted); min-width: 0;
+    }
+    .cl-cmd b { color: var(--green); font-weight: 700; flex: none; }
+    .cl-cmd i {
+      font-style: normal; color: var(--mint);
+      transition: text-shadow 0.25s ease;
+    }
+    .cmd-link.gh .cl-cmd i { color: #7db8ff; }
+    .cmd-link:hover .cl-cmd i { text-shadow: 0 0 16px color-mix(in srgb, currentColor 55%, transparent); }
+    .cl-go {
+      margin-left: auto; flex: none;
+      color: var(--green); font-weight: 400;
+      opacity: 0; transform: translateX(-6px);
+      transition: opacity 0.2s ease, transform 0.2s ease;
+    }
+    .cmd-link:hover .cl-go { opacity: 1; transform: none; }
+    @media (max-width: 860px) {
+      .comm-split { grid-template-columns: minmax(0, 1fr); }
+      .comm-links { padding-top: 0; }
+    }
+    @media (max-width: 560px) {
+      .cta .btn.primary { width: 100%; justify-content: center; }
+      .cta { gap: 0.75rem; }
+    }
+
+    footer .under {
+      display: flex; align-items: center; justify-content: space-between; gap: 1rem;
+      padding: 1.6rem clamp(1rem, 4vw, 2rem) 2rem;
+      font-size: 0.78rem; color: var(--muted);
+      max-width: 1180px; margin-inline: auto;
+    }
+    footer .under a { color: var(--muted2); text-decoration: none; }
+    footer .under a:hover { color: var(--mint); }
+    footer .under .up {
+      display: inline-flex; align-items: center; gap: 0.4rem;
+      font-family: var(--mono); font-size: 0.72rem;
+    }
+
+    @media (max-width: 960px) {
+      .hero { grid-template-columns: minmax(0, 1fr); padding-top: 2.25rem; }
+      .hero-term { max-width: 620px; }
+      .hero { overflow-x: clip; }
+      .halo { inset: -8% -6%; }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      html { scroll-behavior: auto; }
+      .halo, .specks i, .dep { animation: none; } .dep-step.run .ic { animation: none; border-top-color: #00f0b0; }
+      .brand-caret, .who-dot { animation: none; }
+      .rv { opacity: 1; transform: none; }
+      .btn, .proj, .crow { transition: none; }
+    }
+  </style>
+</head>
+<body>
+
+  <nav class="nav">
+    <a class="brand" href="#top" aria-label="eGames, egam.es — home" data-i-aria="brandAria">
+      <img class="nav-ava" src="https://avatars.githubusercontent.com/u/33666852?v=4" alt="" aria-hidden="true" />
+      <span class="brand-term"><b>eGames</b><i>@</i><span>egam.es</span><em>:~$</em><span class="brand-caret" aria-hidden="true"></span></span>
+    </a>
+    <div class="nav-links">
+      <a href="#projects"><span data-i="navProjects">Projects</span></a>
+      <a href="#community"><span data-i="navCommunity">Community</span></a>
+      <a class="keep" href="https://wiki.egam.es/" target="_blank" rel="noopener"><span data-i="navWiki">Wiki</span></a>
+      <div class="lang" role="group" aria-label="Language" data-i-aria="langAria">
+        <button type="button" data-set-lang="en" class="on">EN</button>
+        <button type="button" data-set-lang="ru">RU</button>
+      </div>
+    </div>
+  </nav>
+
+  <div class="first" id="top">
+    <header class="hero in">
+      <div class="hero-copy">
+        <div class="who">
+          <img class="who-ava" src="https://avatars.githubusercontent.com/u/33666852?v=4" alt="eGames" width="44" height="44" />
+          <div class="who-id">
+            <span class="who-name">eGames</span>
+            <span class="who-dot" aria-hidden="true"></span>
+            <span class="who-role" data-i="role">enthusiast · open source</span>
+          </div>
+        </div>
+        <h1 data-i-html="h1">Complex things,<br /><span class="h1-l2">made <span class="grad">simple.</span></span></h1>
+        <p class="lead" data-i="lead">
+          Around Remnawave I've collected three tools in Bash and Go: a panel and node installer,
+          a Telegram moderation bot for the community, and documentation in two languages.
+          I don't call myself a developer: I just like it when complex things come together
+          with one command.
+        </p>
+
+        <div class="stats">
+          <div class="stat">
+            <span class="st-ico" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="m12 2 3.1 6.3 6.9 1-5 4.9 1.2 6.8L12 17.8 5.8 21l1.2-6.8-5-4.9 6.9-1z"/></svg></span>
+            <b data-stars>—</b>
+            <span class="st-lb" data-i="stat1">stars on GitHub</span>
+          </div>
+          <div class="stat st-violet">
+            <span class="st-ico" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="m12 2 9 5-9 5-9-5z"/><path d="m3 12 9 5 9-5"/><path d="m3 17 9 5 9-5"/></svg></span>
+            <b data-count="3">3</b>
+            <span class="st-lb" data-i="stat2">projects maintained</span>
+          </div>
+          <div class="stat st-amber">
+            <span class="st-ico" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2 4 5v6c0 5 3.4 8.6 8 11 4.6-2.4 8-6 8-11V5z"/><path d="m9 12 2 2 4-4.5"/></svg></span>
+            <b>MIT</b>
+            <span class="st-lb" data-i="stat4">open source</span>
+          </div>
+        </div>
+
+        <div class="cta">
+          <a class="btn primary" href="#projects"><span data-i="ctaProj">Projects</span><span class="arrow" aria-hidden="true">→</span></a>
+          <a class="lnk" href="https://wiki.egam.es/" target="_blank" rel="noopener">wiki.egam.es<span class="ext" aria-hidden="true">↗</span></a>
+          <a class="lnk" href="https://github.com/eGamesAPI" target="_blank" rel="noopener">GitHub<span class="ext" aria-hidden="true">↗</span></a>
+        </div>
+
+        <div class="hero-note">
+          <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m5 8 5-5v18l-5-5H2V8h3z"/><path d="M15.5 8.5a5 5 0 0 1 0 7M18.6 5.4a9.2 9.2 0 0 1 0 13.2"/></svg>
+          <span data-i="note">daily stack:</span> <code>bash · go · postgresql · docker · nginx · caddy</code>
+        </div>
+      </div>
+
+      <div class="hero-term" id="heroTerm">
+        <div class="halo" aria-hidden="true"></div>
+        <div class="specks" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i></div>
+        <div class="dep" id="dep" role="group" aria-label="Interactive intro: press to load a short profile" data-i-aria="depAria">
+          <div class="dep-cap"><b>$</b> whoami</div>
+          <button class="dep-btn" type="button"><span data-i="depBtn">deploy</span><i aria-hidden="true">→</i></button>
+          <ul class="dep-steps">
+            <li class="dep-step"><i class="ic" aria-hidden="true"></i><div class="tx"><span data-i="depS1">searching for eGames</span><span class="det" data-i="depD1">found: enthusiast</span></div></li>
+            <li class="dep-step"><i class="ic" aria-hidden="true"></i><div class="tx"><span data-i="depS2">projects</span><span class="det" data-i="depD2">found: 3 · installer, bot, docs</span></div></li>
+            <li class="dep-step"><i class="ic" aria-hidden="true"></i><div class="tx"><span data-i="depS3">documentation</span><span class="det" data-i="depD3">ru + en · wiki.egam.es</span></div></li>
+            <li class="dep-step"><i class="ic" aria-hidden="true"></i><div class="tx"><span data-i="depS4">status</span><span class="det" data-i="depD4">online · telegram, github</span></div></li>
+          </ul>
+          <div class="dep-barwrap"><div class="dep-bar"><i></i></div><span class="dep-time"></span></div>
+          <div class="dep-done"><span></span></div>
+          <div class="dep-url"><a class="u-mint" href="https://t.me/remnawave_reverse" target="_blank" rel="noopener">t.me/remnawave_reverse</a><span class="u-dim"> · </span><a class="u-cyan" href="https://wiki.egam.es/" target="_blank" rel="noopener">wiki.egam.es</a><span class="u-dim"> · </span><a class="u-violet" href="https://github.com/eGamesAPI" target="_blank" rel="noopener">github.com/eGamesAPI</a></div>
+        </div>
+      </div>
+    </header>
+  </div>
+
+  <section class="sec" id="projects">
+    <div class="in">
+      <h2 class="rv"><span class="idx" aria-hidden="true">01</span><span data-i="s1">Projects</span><span class="rule"></span></h2>
+      <p class="sec-sub rv" data-i="s1sub">The main things I build and maintain. All of it alive: updated,
+        tested on real servers and documented step by step.</p>
+
+      <div class="plist">
+        <a class="pl-row a-mint rv" href="https://github.com/eGamesAPI/remnawave-reverse-proxy" target="_blank" rel="noopener">
+          <span class="pl-idx" aria-hidden="true">01</span>
+          <span class="pl-mark"><img src="assets/logo.webp" alt="" width="24" height="24" /></span>
+          <div class="pl-main">
+            <div class="pl-head"><b class="pl-name">remnawave-reverse-proxy</b><span class="pl-role" data-i="c1role">interactive installer</span></div>
+            <span class="pl-meta" data-i="c1meta">Bash · MIT · Ubuntu · Debian</span>
+            <p data-i="c1desc">The Remnawave panel, an Xray node and the subscription page behind one script: Nginx or Caddy, SSL, SelfSteal and a hidden control panel. No manual configs.</p>
+            <span class="pl-tags" data-i="c1tags">13 modules · SelfSteal · NetBird · WARP · Backup</span>
+          </div>
+          <span class="pl-go" aria-hidden="true">↗</span>
+        </a>
+        <div class="pl-row a-pink rv">
+          <span class="pl-idx" aria-hidden="true">02</span>
+          <span class="pl-mark ava"><img src="assets/remnafamily.png" alt="" width="44" height="44" /></span>
+          <div class="pl-main">
+            <div class="pl-head"><b class="pl-name">Remnafamily Guard</b><span class="pl-role" data-i="c2role">Telegram moderation bot</span></div>
+            <span class="pl-meta" data-i="c2meta">Go 1.26 · PostgreSQL 18 · Docker Compose</span>
+            <p data-i="c2desc">Captcha and quiz on entry, bans, mutes and warns, link and banned-word filters, triggers, reputation and anti-bot for Remnawave community groups. Scheduled PostgreSQL backups.</p>
+            <span class="pl-tags" data-i="c2tags">captcha · quiz · link filter · anti-bot · backups</span>
+          </div>
+          <span class="pl-note" data-i="c2foot">private · on request</span>
+        </div>
+        <a class="pl-row a-violet rv" href="https://wiki.egam.es/" target="_blank" rel="noopener">
+          <span class="pl-idx" aria-hidden="true">03</span>
+          <span class="pl-mark"><img src="assets/logo.webp" alt="" width="24" height="24" /></span>
+          <div class="pl-main">
+            <div class="pl-head"><b class="pl-name">wiki.egam.es</b><span class="pl-role" data-i="c3role">ecosystem documentation</span></div>
+            <span class="pl-meta" data-i="c3meta">Astro · Starlight · RU + EN</span>
+            <p data-i="c3desc">Live terminals instead of screenshots: the whole installation step by step, module diagrams and a settings reference in Russian and English.</p>
+            <span class="pl-tags" data-i="c3tags">live terminals · SVG diagrams · search</span>
+          </div>
+          <span class="pl-go" aria-hidden="true">↗</span>
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <section class="sec alt" id="community">
+    <div class="in">
+      <div class="comm-split rv">
+        <div class="comm-text">
+          <h2><span class="idx" aria-hidden="true">02</span><span data-i="s2">Community</span><span class="rule"></span></h2>
+          <p class="sec-sub" data-i="s2sub">Questions, ideas and bug reports live in the Telegram chat;
+            source code and releases are on GitHub.</p>
+        </div>
+        <div class="comm-links">
+          <a class="cmd-link" href="https://t.me/remnawave_reverse" target="_blank" rel="noopener">
+            <span class="cl-label" data-i="crow1b">Telegram chat</span>
+            <span class="cl-cmd"><b>$</b> open <i>t.me/<wbr />remnawave<wbr />_reverse</i><span class="cl-go" aria-hidden="true">→</span></span>
+          </a>
+          <a class="cmd-link gh" href="https://github.com/eGamesAPI" target="_blank" rel="noopener">
+            <span class="cl-label">GitHub</span>
+            <span class="cl-cmd"><b>$</b> open <i>github.com/<wbr />eGamesAPI</i><span class="cl-go" aria-hidden="true">→</span></span>
+          </a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <footer>
+    <div class="under">
+      <span>© eGames · egam.es</span>
+      <a class="up" href="#top"><span data-i="top">back to top ↑</span></a>
+    </div>
+  </footer>
+
+  <script>
+    'use strict';
+    const REDUCED = matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+    const I18N = {
+      en: {
+        title: 'Remnawave tools, bot and wiki',
+        desc: 'Personal page of eGames: tools around the Remnawave ecosystem — the reverse proxy installer, the Remnafamily Guard moderation bot and documentation at wiki.egam.es.',
+        ogdesc: 'Tools around the Remnawave ecosystem: a bash installer, a Telegram moderation bot and documentation in two languages.',
+        brandAria: 'eGames, egam.es — home',
+        langAria: 'Language',
+        navProjects: 'Projects', navCommunity: 'Community', navWiki: 'Wiki',
+        role: 'enthusiast · open source',
+        h1: 'Complex things,<br /><span class="h1-l2">made <span class="grad">simple.</span></span>',
+        lead: "Around Remnawave I've collected three tools in Bash and Go: a panel and node installer, a Telegram moderation bot for the community, and documentation in two languages. I don't call myself a developer: I just like it when complex things come together with one command.",
+        stat1: 'on GitHub', stat2: 'projects maintained',
+        stat4: 'open source',
+        ctaProj: 'Projects', note: 'daily stack:',
+        depBtn: 'whoami',
+        depS1: 'searching for eGames', depS2: 'projects',
+        depS3: 'documentation', depS4: 'status',
+        depD1: 'found: enthusiast', depD2: 'found: 3 · installer, bot, docs',
+        depD3: 'ru + en · wiki.egam.es', depD4: 'online · telegram, github',
+        depDone: '✓ nice to meet you · {s}s',
+        depAria: 'Interactive intro: press to load a short profile',
+        s1: 'Projects',
+        s1sub: 'The main things I build and maintain. All of it alive: updated, tested on real servers and documented step by step.',
+        s2: 'Community',
+        s2sub: 'Questions, ideas and bug reports live in the Telegram chat; source code and releases are on GitHub.',
+        c1role: 'interactive installer',
+        c1desc: 'The Remnawave panel, an Xray node and the subscription page behind one script: Nginx or Caddy, SSL, SelfSteal and a hidden control panel. No manual configs.',
+        c1meta: 'Bash · MIT · Ubuntu · Debian',
+        c1tags: '13 modules · SelfSteal · NetBird · WARP · Backup',
+        c2role: 'Telegram moderation bot',
+        c2desc: 'Captcha and quiz on entry, bans, mutes and warns, link and banned-word filters, triggers, reputation and anti-bot for Remnawave community groups. Scheduled PostgreSQL backups.',
+        c2meta: 'Go 1.26 · PostgreSQL 18 · Docker Compose',
+        c2tags: 'captcha · quiz · link filter · anti-bot · backups',
+        c2foot: 'private · on request',
+        c3role: 'ecosystem documentation',
+        c3desc: 'Live terminals instead of screenshots: the whole installation step by step, module diagrams and a settings reference in Russian and English.',
+        c3meta: 'Astro · Starlight · RU + EN',
+        c3tags: 'live terminals · SVG diagrams · search',
+        crow1b: 'Telegram chat',
+        top: 'back to top ↑',
+      },
+      ru: {
+        title: 'Инструменты Remnawave, бот и вики',
+        desc: 'Личная страница eGames: инструменты для экосистемы Remnawave, установщик reverse proxy, бот модерации Remnafamily Guard и документация wiki.egam.es.',
+        ogdesc: 'Инструменты для экосистемы Remnawave: bash-установщик, Telegram-бот модерации и документация на двух языках.',
+        brandAria: 'eGames, egam.es: на главную',
+        langAria: 'Язык',
+        navProjects: 'Проекты', navCommunity: 'Сообщество', navWiki: 'Вики',
+        role: 'энтузиаст · open source',
+        h1: 'Делаю сложное —<br /><span class="h1-l2"><span class="grad">простым.</span></span>',
+        lead: 'Вокруг Remnawave у меня накопилось три инструмента на Bash и Go: установщик панели и нод, Telegram-бот модерации для сообщества и документация на двух языках. Разработчиком себя не называю: просто люблю, когда сложные вещи собираются одной командой.',
+        stat1: 'на GitHub', stat2: 'проекта в поддержке',
+        stat4: 'открытый код',
+        ctaProj: 'Проекты', note: 'ежедневный стек:',
+        depBtn: 'кто я',
+        depS1: 'ищу eGames', depS2: 'проекты',
+        depS3: 'документация', depS4: 'статус',
+        depD1: 'нашёл: энтузиаст', depD2: 'нашёл: 3 · установщик, бот, вики',
+        depD3: 'ru + en · wiki.egam.es', depD4: 'online · telegram, github',
+        depDone: '✓ приятно познакомиться · {s}с',
+        depAria: 'Интерактивное знакомство: нажмите, чтобы загрузить короткий профиль',
+        s1: 'Проекты',
+        s1sub: 'Главное, что я делаю и поддерживаю. Всё живое: обновляется, тестируется на реальных серверах и описано в документации по шагам.',
+        s2: 'Сообщество',
+        s2sub: 'Вопросы, идеи и отчёты о багах живут в Telegram-чате. Исходники и релизы на GitHub.',
+        c1role: 'интерактивный установщик',
+        c1desc: 'Панель Remnawave, Xray-нода и страница подписки за одним скриптом: Nginx или Caddy, SSL, SelfSteal и скрытая панель управления. Без ручных конфигов.',
+        c1meta: 'Bash · MIT · Ubuntu · Debian',
+        c1tags: '13 модулей · SelfSteal · NetBird · WARP · Backup',
+        c2role: 'Telegram-бот модерации',
+        c2desc: 'Капча и квиз на вход, бан/мут/варны, фильтр ссылок и запрещённых слов, триггеры, репутация и анти-бот для групп Remnawave-сообщества. Бэкапы PostgreSQL по расписанию.',
+        c2meta: 'Go 1.26 · PostgreSQL 18 · Docker Compose',
+        c2tags: 'каптча · квиз · фильтр ссылок · анти-бот · бэкапы',
+        c2foot: 'закрытый · по запросу',
+        c3role: 'документация экосистемы',
+        c3desc: 'Живые терминалы вместо скриншотов: вся установка по шагам, диаграммы работы модулей и справочник настроек на русском и английском.',
+        c3meta: 'Astro · Starlight · RU + EN',
+        c3tags: 'живые терминалы · SVG-диаграммы · поиск',
+        crow1b: 'Telegram-чат',
+        top: 'наверх ↑',
+      },
+    };
+
+    let lang = 'en';
+
+    const starsEl = document.querySelector('[data-stars]');
+    fetch('https://api.github.com/repos/eGamesAPI/remnawave-reverse-proxy', {
+      headers: { Accept: 'application/vnd.github+json' },
+    })
+      .then((r) => r.json())
+      .then((d) => {
+        if (typeof d.stargazers_count === 'number') {
+          const fmt = d.stargazers_count.toLocaleString(lang === 'ru' ? 'ru-RU' : 'en-US');
+          starsEl.textContent = fmt;
+          const d2 = document.querySelector('[data-i="depD2"]');
+          if (d2 && !d2.textContent.includes('★')) d2.textContent += ' · ★ ' + fmt;
+        }
+      })
+      .catch(() => {});
+
+    if (!REDUCED) {
+      document.querySelectorAll('[data-count]').forEach((el) => {
+        const target = parseInt(el.dataset.count || '0', 10);
+        const t0 = performance.now();
+        const dur = 900;
+        const tick = (t) => {
+          const k = Math.min(1, (t - t0) / dur);
+          el.textContent = String(Math.round(target * (1 - Math.pow(1 - k, 3))));
+          if (k < 1) requestAnimationFrame(tick);
+        };
+        requestAnimationFrame(tick);
+      });
+    }
+
+    const rvs = document.querySelectorAll('.rv');
+    if (rvs.length && !REDUCED && 'IntersectionObserver' in window) {
+      const io = new IntersectionObserver((entries) => {
+        entries.forEach((e) => {
+          if (e.isIntersecting) { e.target.classList.add('in'); io.unobserve(e.target); }
+        });
+      }, { threshold: 0.15 });
+      rvs.forEach((el) => io.observe(el));
+    } else {
+      rvs.forEach((el) => el.classList.add('in'));
+    }
+
+    function applyLang(l) {
+      lang = l;
+      localStorage.setItem('eg-lang', l);
+      const d = I18N[l];
+      document.documentElement.lang = l;
+      document.title = d.title;
+      document.querySelector('meta[name="description"]').setAttribute('content', d.desc);
+      document.querySelector('meta[property="og:description"]').setAttribute('content', d.ogdesc);
+      const h1 = document.querySelector('h1');
+      if (h1) h1.innerHTML = d.h1;
+      document.querySelectorAll('[data-i]').forEach((el) => {
+        const v = d[el.dataset.i];
+        if (typeof v === 'string') el.textContent = v;
+      });
+      document.querySelectorAll('[data-i-aria]').forEach((el) => {
+        const v = d[el.dataset.iAria];
+        if (typeof v === 'string') el.setAttribute('aria-label', v);
+      });
+      document.querySelectorAll('[data-set-lang]').forEach((b) => {
+        b.classList.toggle('on', b.dataset.setLang === l);
+      });
+    }
+
+    document.querySelectorAll('[data-set-lang]').forEach((b) => {
+      b.addEventListener('click', () => {
+        if (b.dataset.setLang !== lang) applyLang(b.dataset.setLang);
+      });
+    });
+
+    const dep = document.getElementById('dep');
+    if (dep) {
+      const btn = dep.querySelector('.dep-btn');
+      const steps = [...dep.querySelectorAll('.dep-step')];
+      const bar = dep.querySelector('.dep-bar i');
+      const timeEl = dep.querySelector('.dep-time');
+      const doneEl = dep.querySelector('.dep-done');
+      const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
+      const label = btn.querySelector('[data-i="depBtn"]');
+      const urlEl = dep.querySelector('.dep-url');
+      const stepsUl = dep.querySelector('.dep-steps');
+      btn.classList.add('attn');
+      const DURS = [900, 1050, 950, 800];
+      let busy = false;
+      const run = async () => {
+        if (busy) return;
+        busy = true;
+        btn.classList.remove('attn');
+        btn.classList.add('busy');
+        stepsUl.classList.add('live');
+        doneEl.classList.remove('show');
+        urlEl.classList.remove('show');
+        dep.classList.remove('flash');
+        bar.style.width = '0%';
+        timeEl.textContent = '';
+        steps.forEach((st) => { st.className = 'dep-step'; });
+        const t0 = performance.now();
+        for (let i = 0; i < steps.length; i++) {
+          steps[i].classList.add('run');
+          const wait = REDUCED ? 40 : DURS[i] + Math.random() * 250;
+          await sleep(wait);
+          steps[i].classList.remove('run');
+          steps[i].classList.add('ok');
+          bar.style.width = ((i + 1) / steps.length) * 100 + '%';
+          timeEl.textContent = ((performance.now() - t0) / 1000).toFixed(1) + 's';
+          label.textContent = Math.round(((i + 1) / steps.length) * 100) + '%';
+        }
+        const secs = ((performance.now() - t0) / 1000).toFixed(1);
+        doneEl.querySelector('span').textContent = (I18N[lang].depDone || '').replace('{s}', secs);
+        doneEl.classList.add('show');
+        urlEl.classList.add('show');
+        dep.classList.add('flash');
+        label.textContent = I18N[lang].depBtn;
+        btn.classList.remove('busy');
+        busy = false;
+      };
+      btn.addEventListener('click', run);
+    }
+
+    if (localStorage.getItem('eg-lang') === 'ru') applyLang('ru');
+  </script>
+</body>
+</html>
